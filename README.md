@@ -1,5 +1,6 @@
 # Fire TV Cube Wolf Launcher Watchdog
-Non-root automation to enforce a child-safe launcher on Fire OS
+
+Non-root automation system that enforces a child-safe launcher on Fire OS using ADB and an external watchdog.
 
 Author: Sean Conroy  
 Project type: DevOps / Automation / Systems Integration (small-scale)  
@@ -10,17 +11,20 @@ Status: Stable, running continuously in a home production environment
 
 ## Overview
 
-This repository documents a real-world automation problem and a practical solution.
+This project solves a real-world limitation in Fire OS by enforcing a child-safe launcher without root access or firmware modification.
 
-Fire OS prominently displays autoplay trailers and promotional thumbnails on the home screen, including content that is not appropriate for children.  
-At the time of implementation, Fire OS provided no reliable system-level option to fully disable or filter this behavior, even when using child profiles.
+Fire OS aggressively promotes its default launcher, including autoplay trailers and promotional content that cannot be fully disabled through system settings — even with child profiles enabled.
 
-The goal of this project was to **consistently suppress the Fire OS launcher** and **enforce a clean, child-safe launcher (Wolf Launcher)** at all times, without rooting the device or modifying firmware.
+To address this, a lightweight external control system was designed:
 
-The solution uses:
-- A Raspberry Pi as an external automation agent
-- ADB (Android Debug Bridge) over the local network
-- A lightweight bash-based watchdog script that continuously enforces launcher state
+- A Raspberry Pi acts as a persistent automation agent
+- ADB is used to observe the active foreground application in real time
+- A watchdog script enforces the desired launcher state
+
+Whenever the Fire OS launcher appears, it is immediately replaced with Wolf Launcher.  
+All other applications (e.g. Netflix, Disney+, Apple TV+) remain unaffected.
+
+The result is a stable, non-invasive control loop that maintains a clean, child-safe interface under restrictive platform conditions.
 
 ---
 
@@ -93,6 +97,19 @@ while true; do
     sleep 1
 done
 ```
+## Runtime Characteristics
+
+- Polling interval: 1 second
+- Reaction time: <1s
+- Runs continuously on Raspberry Pi
+- No noticeable impact on device performance
+
+## System Behavior
+
+- Detects currently focused application via ADB
+- If Fire OS launcher is active → immediately relaunches Wolf Launcher
+- If any other app is active → no action taken
+- Runs continuously with minimal resource usage
 
 ---
 
